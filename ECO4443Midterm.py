@@ -7,34 +7,328 @@ Created on Mon Feb 26 13:25:49 2024
 
 
 from itertools import combinations
-import pandas as pd
 from pandas import read_csv
 from pandas import DataFrame
-from statsmodels.api import add_constant
 import numpy as np
 import statsmodels.api as sm
 from numpy.random import seed
-from math import log
-from math import tan
-from math import sqrt
-
-import sklearn
-from sklearn.model_selection import cross_val_score, cross_validate
+from sklearn.model_selection import cross_validate
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 import seaborn as sns
+from scipy import stats
+import matplotlib.pyplot as plt
+from math import sqrt
+
 
 # Payton Desktop Filepath
 data = read_csv('C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
 
+# Generating summary statistics for existing variables:
+    
+stats.describe(data.price)
+
+stats.describe(data.year)
+
+stats.describe(data.age)
+
+stats.describe(data.beds)
+
+stats.describe(data.baths)
+
+stats.describe(data.home_size)
+
+stats.describe(data.parcel_size)
+
+stats.describe(data.pool)
+
+stats.describe(data.dist_cbd)
+
+stats.describe(data.dist_lakes)
+
+stats.describe(data.x_coord)
+
+stats.describe(data.y_coord)
+
+
+# Creating Histograms for existing variables
+
+
+plt.hist(data.price, bins=100, color='#22878a')
+
+plt.xlabel("Sales Price")
+
+plt.ylabel("# of observations")
+
+plt.title("Sales Price")
+
+plt.show()
+
+
+plt.hist(data.year, bins=100, color='#5E33FF')
+
+plt.xlabel("Year of Sale")
+
+plt.ylabel("# of observations")
+
+plt.title("Year of Sale")
+
+plt.show()
+
+
+plt.hist(data.age, bins=100, color='#FF334B')
+
+plt.xlabel("Age of Home")
+
+plt.ylabel("# of Observations")
+
+plt.title("Age of Home")
+
+plt.show()
+
+
+
+plt.hist(data.beds, bins=100, color='#22878a')
+
+plt.xlabel("Bedrooms")
+
+plt.ylabel("# of Observations")
+
+plt.title("Number of Bedrooms")
+
+plt.show()
+
+
+plt.hist(data.baths, bins=100, color='#5E33FF')
+
+plt.xlabel("Bathrooms")
+
+plt.ylabel("# of Observations")
+
+plt.title("Number of Bathrooms")
+
+plt.show()
+
+
+plt.hist(data.home_size, bins=100, color='#FF334B')
+
+plt.xlabel("Home Size (Sq ft)")
+
+plt.ylabel("# of Observations")
+
+plt.title("Size of Home")
+
+plt.show()
+
+
+plt.hist(data.parcel_size, bins=100, color='#22878a')
+
+plt.xlabel("Parcel Size (Sq ft)")
+
+plt.ylabel("# of Observations")
+
+plt.title("Size of Parcel")
+
+plt.show()
+
+
+plt.hist(data.pool, bins=100, color='#5E33FF')
+
+plt.xlabel("Pool")
+
+plt.ylabel("# of Observations")
+
+plt.title("Pool Homes")
+
+plt.show()
+
+
+plt.hist(data.dist_cbd, bins=100, color='#FF334B')
+
+plt.xlabel("Distance from CBD (m)")
+
+plt.ylabel("# of Observations")
+
+plt.title("Distance from CBD")
+
+plt.show()
+
+
+plt.hist(data.dist_lakes, bins=100, color='#22878a')
+
+plt.xlabel("Distance from Nearest Lake (m)")
+
+plt.ylabel("# of Observations")
+
+plt.title("Distance from Nearest Lake")
+
+plt.show()
+
+
+plt.hist(data.x_coord, bins=100, color='#5E33FF')
+
+plt.xlabel("X coordinate")
+
+plt.ylabel("# of Observations")
+
+plt.title("X Coordinate of Home")
+
+plt.show()
+
+
+plt.hist(data.y_coord, bins=100, color='#FF334B')
+
+plt.xlabel("Y coordinate")
+
+plt.ylabel("# of Observations")
+
+plt.title("Y Coordinate of Home")
+
+plt.show()
+
 
 # Creates a heatmapped correlation matrix to get a feel for the data
+
 corr = data.corr()
 
-sns.heatmap(corr);
+sns.heatmap(corr)
+
 heatmap = sns.heatmap(data.corr().round(1), annot=True)
+
 heatmap.set_title("Correlation Heatmap")
+
+
+heatmap.set_title("Correlation Heatmap")
+
 print(heatmap)
+
+
+
+# Creating scatterplots for each variable with respect to price
+
+
+plt.scatter(data.year,data.price, color='#5E33FF')
+
+plt.xlabel("Year Sold")
+
+plt.ylabel("Sales Price")
+
+plt.title("Year Sold")
+
+plt.show()
+
+
+
+plt.scatter(data.age,data.price, color='#FF334B')
+
+plt.xlabel("Age of Home")
+
+plt.ylabel("Sales Price")
+
+plt.title("Age of Home")
+
+plt.show()
+
+
+
+plt.scatter(data.beds,data.price, color='#22878a')
+
+plt.xlabel("Number of Bedrooms")
+
+plt.ylabel("Sales Price")
+
+plt.title("Number of Bedrooms")
+
+plt.show()
+
+
+
+plt.scatter(data.baths,data.price, color='#5E33FF')
+
+plt.xlabel("Number of Bathrooms")
+
+plt.ylabel("Sales Price")
+
+plt.title("Number of Bathrooms")
+
+plt.show()
+
+
+plt.scatter(data.home_size,data.price, color='#FF334B')
+
+plt.xlabel("Size of Home (Sq ft)")
+
+plt.ylabel("Sales Price")
+
+plt.title("Size of Home")
+
+plt.show()
+
+
+plt.scatter(data.parcel_size,data.price, color='#22878a')
+
+plt.xlabel("Size of Parcel (Sq ft)")
+
+plt.ylabel("Sales Price")
+
+plt.title("Size of Parcel")
+
+plt.show()
+
+
+plt.scatter(data.pool,data.price, color='#5E33FF')
+
+plt.xlabel("Pool")
+
+plt.ylabel("Sales Price")
+
+plt.title("Pool Home")
+
+plt.show()
+
+
+plt.scatter(data.dist_cbd,data.price, color='#FF334B')
+
+plt.xlabel("Distance from CBD (m)")
+
+plt.ylabel("Sales Price")
+
+plt.title("Distance from CBD")
+
+plt.show()
+
+
+plt.scatter(data.dist_lakes,data.price, color='#22878a')
+
+plt.xlabel("Distance from Nearest Lake (m)")
+
+plt.ylabel("Sales Price")
+
+plt.title("Distance from Nearest Lake")
+
+plt.show()
+
+
+plt.scatter(data.x_coord,data.price, color='#5E33FF')
+
+plt.xlabel("X Coordinate")
+
+plt.ylabel("Sales Price")
+
+plt.title("X Coordinate of Home")
+
+plt.show()
+
+
+plt.scatter(data.y_coord,data.price, color='#FF334B')
+
+plt.xlabel("Y Coordinate")
+
+plt.ylabel("Sales Price")
+
+plt.title("Y Coordinate of Home")
+
+plt.show()
 
 
 #scaling the dependent variable
@@ -43,10 +337,34 @@ data['price'] = data['price']/1000
 
 # Creating variables to evaluate in competing models
 
-#data['parcel_home_interaction'] = data.parcel_size*data.home_size
 data['parcel_home_ratio'] = data.home_size/data.parcel_size
+
 data['bath_bed_ratio'] = data.baths/data.beds
-data['r_coord'] = sqrt(data.x_coord**2) + (data.y_coord**2)
+
+# Creating Scatterplots for the new variables
+
+
+plt.scatter(data.parcel_home_ratio,data.price, color='#22878a')
+
+plt.xlabel("Parcel-Home Ratio")
+
+plt.ylabel("Sales Price")
+
+plt.title("Parcel-Home Ratio")
+
+plt.show()
+
+
+
+plt.scatter(data.bath_bed_ratio,data.price, color='#5E33FF')
+
+plt.xlabel("Bath-Bed Ratio")
+
+plt.ylabel("Sales Price")
+
+plt.title("Ratio of Bathrooms per Bedroom of Homes")
+
+plt.show()
 
 
 #data['x_y_interaction'] = data['x_coord']*data['y_coord']
@@ -65,6 +383,7 @@ data['r_coord'] = sqrt(data.x_coord**2) + (data.y_coord**2)
 #data['pool_home_size_interaction'] = data.home_size*data.pool
 
 # Creating dummies for year
+
 data['year_2000'] = 0
 data.year_2000[data['year'] == 2000] = 1
 data['year_2001'] = 0
@@ -77,6 +396,7 @@ data['year_2004'] = 0
 data.year_2004[data['year'] == 2004] = 1
 data['year_2005'] = 0
 data.year_2005[data['year'] == 2005] = 1
+
         
 # dummies for beds
         
@@ -95,8 +415,8 @@ data.bed_6[data['beds'] == 6] = 1
 data['bed_7'] = 0
 data.bed_7[data['beds'] == 7] = 1
 
-#dummies for baths
 
+#dummies for baths
 
 data['bath_1']= 0
 data.bath_1[data['baths'] == 1] = 1
@@ -133,7 +453,7 @@ data.bath_9[data['baths'] == 9] = 1
 
 
 
-#creating model variable combinations
+#attempting a model with every possible combination of variables
 
 seed(1234)
 data = data.sample(len(data))
@@ -141,7 +461,7 @@ data = data.sample(len(data))
 x_combos = []
 for n in range(1,58):
     combos = combinations(['year', 'baths', 'age', 'beds', 'home_size', 'parcel_size',\
-                           'pool', 'dist_cbd', 'dist_lakes', 'x_coord', 'y_coord', 'parcel_home_interaction',\
+                           'pool', 'dist_cbd', 'dist_lakes', 'x_coord', 'y_coord', 'parcel_home_ratio',\
                                'parcel_home_ratio', 'x_y_interaction', 'area_sqd', 'area_cubed', 'parcel_sqd',\
                                    'parcel_cubed', 'age_sqd', 'cbd_lakes_interaction', 'cbd_sqd', 'lakes_sqd',\
                                        'bed_bath_interaction', 'bed_home_size_interaction', 'bath_home_size_interaction',\
@@ -155,11 +475,7 @@ for n in range(1,58):
 
 y = data['price']
 
-# A dictionary is created to store the variable combinations
-# and associated average (over folds) test mse values
-
 mse = {}
-
 
 for n in range(0, len(x_combos)):
     combo_list = list(x_combos[n])
@@ -174,6 +490,10 @@ print("Minimum Average Test MSE:", min_mse.round(3))
 for possibles, i in mse.items():
     if i == -min_mse:
         print("The Combination of Variables:", possibles)
+        
+#Warning: This code takes forever to run
+#Outcomes from the Best Linear Regression Model:
+#Minimum Average Test MSE: Around 4900 at the time of cancelation
 
 ################################################################################
 #Trying a new model using polynomial features
@@ -194,7 +514,7 @@ y = data['price']
 mse = {}
 
 for n in range(0, len(x_combos)):
-    for j in range(1, 3): 
+    for j in range(2, 4): 
         combo_list = list(x_combos[n])
         x = data[combo_list]
         poly = PolynomialFeatures(j)
@@ -211,20 +531,71 @@ for possibles, i in mse.items():
         print("The Combination of Variables:", possibles)
 
 
-##############################################################################
-#Model 2
-x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3']]
-poly = PolynomialFeatures(3)
-poly_x = poly.fit_transform(x)
+seed(1234)
+data = data.sample(len(data))
 
-# Add variable names
-x = DataFrame(poly.fit_transform(x), columns=poly.get_feature_names_out(x.columns))
+x_combos = []
+for n in range(1, 12):
+    combos = combinations(['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3'], n)
+    x_combos.extend(combos)
+
 y = data['price']
 
+mse = {}
+
+for n in range(0, len(x_combos)):
+    combo_list = list(x_combos[n])
+    x = data[combo_list]
+    poly = PolynomialFeatures(3)
+    poly_x = poly.fit_transform(x)
+    model = LinearRegression()
+    cv_scores = cross_validate(model, poly_x, y, cv=10, scoring=('neg_mean_squared_error'))
+    mse[str(combo_list)] = np.mean(cv_scores['test_score'])
+
+print("Outcomes from the Best Linear Regression Model:")
+min_mse = abs(max(mse.values()))
+print("Minimum Average Test MSE:", min_mse.round(2))
+for possibles, i in mse.items():
+    if i == -min_mse:
+        print("The Combination of Variables:", possibles)
+        
+#Outcomes from the Best Linear Regression Model:
+#Minimum Average Test MSE: 3406.49
+#The Combination of Variables: ['home_size', 'pool', 'year', 'age', 'area_percentage', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bedrooms_per_bathroom', 'bed_3']
+
+
+# Re-testing the best model with the whole dataset
+
+
+x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3']]
+
+poly = PolynomialFeatures(3)
+
+poly_x = poly.fit_transform(x)
+
+
+
+# Add variable names
+
+x = DataFrame(poly.fit_transform(x), columns=poly.get_feature_names_out(x.columns))
+
+y = list(data['price'])
+
+
+
 best_model = sm.OLS(y, x)
+
 results = best_model.fit()
+
 print(results.summary())
 
+
+
 pred = results.predict(poly_x)
-mse_best_model2 = sum((data.price - pred)**2)/results.nobs
-mse_best_model2
+
+mse_best_model = sum((data.price - pred)**2)/results.nobs
+
+mse_best_model
+# MSE = 2988.342463693857
+# R^2 = 0.854
+##############################################################################
