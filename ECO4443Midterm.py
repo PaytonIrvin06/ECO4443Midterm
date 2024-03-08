@@ -631,7 +631,7 @@ y = data['price']
 mse = {}
 
 for n in range(0, len(x_combos)):
-    for j in range(3, 5): 
+    for j in range(4, 7): 
         combo_list = list(x_combos[n])
         x = data[combo_list]
         poly = PolynomialFeatures(j)
@@ -649,11 +649,12 @@ for possibles, i in mse.items():
         
 
 # Outcomes from the Best Linear Regression Model:
-# Minimum Average Test MSE: 3426.19
-# The Combination of Variables: ("['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']", 3)
+# Minimum Average Test MSE: 3412.17
+# The Combination of Variables: ("['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']", 4)
 ###############################################################################
 
 # Attempting a Lasso Model
+
 
 seed(1234)
 data = data.sample(len(data))
@@ -711,10 +712,10 @@ for possibles, r in lasso_mse.items():
 # Re-testing the best model with the whole dataset
 
 
-x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes',\
-          'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3']]
+x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
+    
 
-poly = PolynomialFeatures(3)
+poly = PolynomialFeatures(4)
 
 poly_x = poly.fit_transform(x)
 
@@ -732,17 +733,25 @@ best_model = sm.OLS(y, x)
 
 results = best_model.fit()
 
-print(results.summary())
+# Print summary to a .txt file:
+# (in case the summary is too long like if polynomial features > 3)
+# Be sure to set your working directory if using this option.
 
+with open("output.txt", "a") as f:
+    
+    print(results.summary(), file= f)
 
+#Print summary to the console:
+
+#print(results.summary())
 
 pred = results.predict(poly_x)
 
 mse_best_model = sum((data.price - pred)**2)/results.nobs
 
 mse_best_model
-# MSE = 2988.342463693857
-# R^2 = 0.854
+# MSE = 2683.6381338397628
+# R^2 = 0.869
 ##############################################################################
 
 # Final Steps
@@ -762,36 +771,19 @@ import statsmodels.api as sm
 
 val_set = read_csv("C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_validation_set.csv")
 
+# Creating the necessary variables for the validation set
 
-#Model 1
+val_set['parcel_home_ratio'] = val_set.home_size/val_set.parcel_size
 
-val_x = val_set[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', \
-                 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord']]
+val_set['bed_3'] = 0
+val_set.bed_3[val_set['beds'] == 3] = 1
 
-poly_val = PolynomialFeatures(3)
+# Estimating the model
 
-poly_val_x = poly_val.fit_transform(val_x)
+val_x = val_set[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes',\
+                 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
 
-
-
-val_x = DataFrame(poly_val.fit_transform(val_x), columns=poly_val.get_feature_names_out(val_x.columns))
-
-val_y = val_set['price']
-
-
-
-pred = results.predict(poly_val_x)
-
-mse_best_model1 = sum((val_set.price - pred)**2)/len(val_set)
-
-mse_best_model1
-
-# Model 2
-
-val_x = val_set[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', \
-                 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3']]
-
-poly_val = PolynomialFeatures(3)
+poly_val = PolynomialFeatures(4)
 
 poly_val_x = poly_val.fit_transform(val_x)
 
@@ -805,6 +797,6 @@ val_y = val_set['price']
 
 pred = results.predict(poly_val_x)
 
-mse_best_model1 = sum((val_set.price - pred)**2)/len(val_set)
+mse_best_model = sum((val_set.price - pred)**2)/len(val_set)
 
-mse_best_model1
+mse_best_model
