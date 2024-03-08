@@ -20,11 +20,16 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.linear_model import LinearRegression, Lasso
 
-# Payton Desktop Filepath
-data = read_csv('C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
+# Payton's Desktop File Path
+
+#data = read_csv('C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
+
+# Payton's Surface File Path
+
+data = read_csv('C:/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
 
 # Generating summary statistics for existing variables:
-    
+
 stats.describe(data.price)
 
 stats.describe(data.year)
@@ -196,9 +201,6 @@ heatmap = sns.heatmap(data.corr().round(1), annot=True)
 
 heatmap.set_title("Correlation Heatmap")
 
-
-heatmap.set_title("Correlation Heatmap")
-
 print(heatmap)
 
 
@@ -364,6 +366,7 @@ plt.ylabel("Sales Price")
 plt.title("Ratio of Bathrooms per Bedroom of Homes")
 
 plt.show()
+
 
 
 #data['x_y_interaction'] = data['x_coord']*data['y_coord']
@@ -619,7 +622,8 @@ data = data.sample(len(data))
 
 x_combos = []
 for n in range(1, 12):
-    combos = combinations(['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3'], n)
+    combos = combinations(['home_size', 'pool', 'year', 'age', 'parcel_home_ratio',\
+                           'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3'], n)
     x_combos.extend(combos)
 
 y = data['price']
@@ -656,17 +660,19 @@ seed(1234)
 data = data.sample(len(data))
 
 y = data['price']/1000
-x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3']]
+x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes',\
+          'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3']]
 
-# First, we standardize the data such that all variables have
-# mean = 0 and std deviation = 1
 
 x_scaled = preprocessing.scale(x)
-x_scaled = pd.DataFrame(x_scaled, columns=('home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3'))
+x_scaled = pd.DataFrame(x_scaled, columns=('home_size', 'pool', 'year', 'age',\
+                                           'parcel_home_ratio', 'dist_lakes', 'dist_cbd',\
+                                               'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3'))
 
 x_combos = []
 for n in range(1,12):
-    combos = combinations(['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3'], n)
+    combos = combinations(['home_size', 'pool', 'year', 'age', 'parcel_home_ratio',\
+                           'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3'], n)
     x_combos.extend(combos)
 
 
@@ -674,15 +680,15 @@ ols_mse = {}
 lasso_mse = {}
 
 for n in range(0, len(x_combos)):
-    #for j in range(5, 30, 5): 
-    combo_list = list(x_combos[n])
-    x = x_scaled[combo_list]
+    for j in range(5, 30, 5): 
+        combo_list = list(x_combos[n])
+        x = x_scaled[combo_list]
 
-    ols_cv_scores = cross_validate(LinearRegression(), x, y, cv=10, scoring=('neg_mean_squared_error'))
-    lasso_cv_scores = cross_validate(Lasso(alpha=15), x, y, cv=10, scoring=('neg_mean_squared_error'))
+        ols_cv_scores = cross_validate(LinearRegression(), x, y, cv=10, scoring=('neg_mean_squared_error'))
+        lasso_cv_scores = cross_validate(Lasso(alpha=15), x, y, cv=10, scoring=('neg_mean_squared_error'))
 
-    ols_mse[str(combo_list)] = np.mean(ols_cv_scores['test_score'])
-    lasso_mse[str(combo_list)] = np.mean(lasso_cv_scores['test_score'])
+        ols_mse[str(combo_list)] = np.mean(ols_cv_scores['test_score'])
+        lasso_mse[str(combo_list)] = np.mean(lasso_cv_scores['test_score'])
 
 print("Outcomes from the Best OLS Model:")
 ols_min_mse = abs(max(ols_mse.values()))
@@ -697,13 +703,17 @@ print("Minimum Average Lasso Test MSE:", lasso_min_mse.round(3))
 for possibles, r in lasso_mse.items():
     if r == -lasso_min_mse:
         print("The Lasso Combination of Variables:", possibles)
+        
+# For some reason, this model only outputs MSE's or 0.02 so either it doesn't work
+# or is a VERY impressive predictive model.
 
 ###############################################################################
 
 # Re-testing the best model with the whole dataset
 
 
-x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
+x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes',\
+          'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
 
 poly = PolynomialFeatures(3)
 
@@ -756,7 +766,8 @@ val_set = read_csv("C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_
 
 #Model 1
 
-val_x = val_set[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord']]
+val_x = val_set[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', \
+                 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord']]
 
 poly_val = PolynomialFeatures(3)
 
@@ -778,7 +789,8 @@ mse_best_model1
 
 # Model 2
 
-val_x = val_set[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
+val_x = val_set[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', \
+                 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
 
 poly_val = PolynomialFeatures(3)
 
