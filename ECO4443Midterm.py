@@ -631,7 +631,7 @@ y = data['price']
 mse = {}
 
 for n in range(0, len(x_combos)):
-    for j in range(1, 4): 
+    for j in range(3, 5): 
         combo_list = list(x_combos[n])
         x = data[combo_list]
         poly = PolynomialFeatures(j)
@@ -649,9 +649,8 @@ for possibles, i in mse.items():
         
 
 # Outcomes from the Best Linear Regression Model:
-# Minimum Average Test MSE: 3442.49
+# Minimum Average Test MSE: 3426.19
 # The Combination of Variables: ("['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']", 3)
-
 ###############################################################################
 
 # Attempting a Lasso Model
@@ -713,7 +712,7 @@ for possibles, r in lasso_mse.items():
 
 
 x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes',\
-          'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
+          'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3']]
 
 poly = PolynomialFeatures(3)
 
@@ -790,7 +789,7 @@ mse_best_model1
 # Model 2
 
 val_x = val_set[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', \
-                 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
+                 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3']]
 
 poly_val = PolynomialFeatures(3)
 
