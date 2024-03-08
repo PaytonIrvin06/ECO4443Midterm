@@ -22,11 +22,11 @@ from sklearn.linear_model import LinearRegression, Lasso
 
 # Payton's Desktop File Path
 
-#data = read_csv('C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
+data = read_csv('C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
 
 # Payton's Surface File Path
 
-data = read_csv('C:/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
+#data = read_csv('C:/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
 
 # Generating summary statistics for existing variables:
 
