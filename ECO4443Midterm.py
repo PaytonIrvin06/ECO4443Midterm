@@ -5,7 +5,7 @@ Created on Mon Feb 26 13:25:49 2024
 @author: Payton Irvin
 """
 
-
+import pandas as pd
 from itertools import combinations
 from pandas import read_csv
 from pandas import DataFrame
@@ -13,13 +13,12 @@ import numpy as np
 import statsmodels.api as sm
 from numpy.random import seed
 from sklearn.model_selection import cross_validate
-from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 import seaborn as sns
 from scipy import stats
 import matplotlib.pyplot as plt
-from math import sqrt
-
+from sklearn import preprocessing
+from sklearn.linear_model import LinearRegression, Lasso
 
 # Payton Desktop Filepath
 data = read_csv('C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
@@ -496,7 +495,8 @@ for possibles, i in mse.items():
 #Minimum Average Test MSE: Around 4900 at the time of cancelation
 
 ################################################################################
-#Trying a new model using polynomial features
+#Trying a new model using polynomial features and variables with correlation 
+# coefficients > 0.2, and x and y coordinates.
 
 
 seed(1234)
@@ -530,6 +530,89 @@ for possibles, i in mse.items():
     if i == -min_mse:
         print("The Combination of Variables:", possibles)
 
+        
+        
+# New model using iterating accross a range of polynomial features values, 
+# using only variables with correlation coeff > 0.3, as well as x, y, and the parcel home ratio
+# excluding dummies
+
+
+seed(1234)
+data = data.sample(len(data))
+
+x_combos = []
+for n in range(1, 9):
+    combos = combinations(['beds', 'baths', 'home_size', 'pool', 'bath_bed_ratio',\
+                               'x_coord', 'y_coord', 'parcel_home_ratio'], n)
+    x_combos.extend(combos)
+
+y = data['price']
+
+mse = {}
+
+for n in range(0, len(x_combos)):
+    for j in range(1, 4): 
+        combo_list = list(x_combos[n])
+        x = data[combo_list]
+        poly = PolynomialFeatures(j)
+        poly_x = poly.fit_transform(x)
+        model = LinearRegression()
+        cv_scores = cross_validate(model, poly_x, y, cv=10, scoring=('neg_mean_squared_error'))
+        mse[str(combo_list), j] = np.mean(cv_scores['test_score'])
+
+print("Outcomes from the Best Linear Regression Model:")
+min_mse = abs(max(mse.values()))
+print("Minimum Average Test MSE:", min_mse.round(2))
+for possibles, i in mse.items():
+    if i == -min_mse:
+        print("The Combination of Variables:", possibles)
+
+# Outcome:
+# Minimum Average Test MSE: 5047.64
+# The Combination of Variables: ("['baths', 'home_size', 'pool', 'bath_bed_ratio', 'x_coord', 'y_coord', 'parcel_home_ratio']", 3)
+
+###############################################################################
+
+# New model using iterating accross a range of polynomial features values, 
+# using only variables with correlation coeff > 0.3, as well as x, y, and the parcel home ratio
+# including dummies
+
+
+seed(1234)
+data = data.sample(len(data))
+
+x_combos = []
+for n in range(1, 10):
+    combos = combinations(['beds', 'baths', 'home_size', 'pool', 'bath_bed_ratio',\
+                               'x_coord', 'y_coord', 'parcel_home_ratio', 'bed_5'], n)
+    x_combos.extend(combos)
+
+y = data['price']
+
+mse = {}
+
+for n in range(0, len(x_combos)):
+    for j in range(1, 4): 
+        combo_list = list(x_combos[n])
+        x = data[combo_list]
+        poly = PolynomialFeatures(j)
+        poly_x = poly.fit_transform(x)
+        model = LinearRegression()
+        cv_scores = cross_validate(model, poly_x, y, cv=10, scoring=('neg_mean_squared_error'))
+        mse[str(combo_list), j] = np.mean(cv_scores['test_score'])
+
+print("Outcomes from the Best Linear Regression Model:")
+min_mse = abs(max(mse.values()))
+print("Minimum Average Test MSE:", min_mse.round(2))
+for possibles, i in mse.items():
+    if i == -min_mse:
+        print("The Combination of Variables:", possibles)
+
+# Outcomes from the Best Linear Regression Model:
+#Minimum Average Test MSE: 5154.06
+#The Combination of Variables: ("['beds', 'home_size', 'pool', 'bath_bed_ratio', 'x_coord', 'y_coord', 'parcel_home_ratio']", 2)
+
+###############################################################################
 
 seed(1234)
 data = data.sample(len(data))
@@ -544,13 +627,14 @@ y = data['price']
 mse = {}
 
 for n in range(0, len(x_combos)):
-    combo_list = list(x_combos[n])
-    x = data[combo_list]
-    poly = PolynomialFeatures(3)
-    poly_x = poly.fit_transform(x)
-    model = LinearRegression()
-    cv_scores = cross_validate(model, poly_x, y, cv=10, scoring=('neg_mean_squared_error'))
-    mse[str(combo_list)] = np.mean(cv_scores['test_score'])
+    for j in range(1, 4): 
+        combo_list = list(x_combos[n])
+        x = data[combo_list]
+        poly = PolynomialFeatures(j)
+        poly_x = poly.fit_transform(x)
+        model = LinearRegression()
+        cv_scores = cross_validate(model, poly_x, y, cv=10, scoring=('neg_mean_squared_error'))
+        mse[str(combo_list), j] = np.mean(cv_scores['test_score'])
 
 print("Outcomes from the Best Linear Regression Model:")
 min_mse = abs(max(mse.values()))
@@ -559,15 +643,67 @@ for possibles, i in mse.items():
     if i == -min_mse:
         print("The Combination of Variables:", possibles)
         
-#Outcomes from the Best Linear Regression Model:
-#Minimum Average Test MSE: 3406.49
-#The Combination of Variables: ['home_size', 'pool', 'year', 'age', 'area_percentage', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bedrooms_per_bathroom', 'bed_3']
 
+# Outcomes from the Best Linear Regression Model:
+# Minimum Average Test MSE: 3442.49
+# The Combination of Variables: ("['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']", 3)
+
+###############################################################################
+
+# Attempting a Lasso Model
+
+seed(1234)
+data = data.sample(len(data))
+
+y = data['price']/1000
+x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3']]
+
+# First, we standardize the data such that all variables have
+# mean = 0 and std deviation = 1
+
+x_scaled = preprocessing.scale(x)
+x_scaled = pd.DataFrame(x_scaled, columns=('home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3'))
+
+x_combos = []
+for n in range(1,12):
+    combos = combinations(['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3'], n)
+    x_combos.extend(combos)
+
+
+ols_mse = {}
+lasso_mse = {}
+
+for n in range(0, len(x_combos)):
+    #for j in range(5, 30, 5): 
+    combo_list = list(x_combos[n])
+    x = x_scaled[combo_list]
+
+    ols_cv_scores = cross_validate(LinearRegression(), x, y, cv=10, scoring=('neg_mean_squared_error'))
+    lasso_cv_scores = cross_validate(Lasso(alpha=15), x, y, cv=10, scoring=('neg_mean_squared_error'))
+
+    ols_mse[str(combo_list)] = np.mean(ols_cv_scores['test_score'])
+    lasso_mse[str(combo_list)] = np.mean(lasso_cv_scores['test_score'])
+
+print("Outcomes from the Best OLS Model:")
+ols_min_mse = abs(max(ols_mse.values()))
+print("Minimum Average OLS Test MSE:", ols_min_mse.round(3))
+for possibles, r in ols_mse.items():
+    if r == -ols_min_mse:
+        print("The OLS Combination of Variables:", possibles)
+
+print("Outcomes from the Best Lasso Model:")
+lasso_min_mse = abs(max(lasso_mse.values()))
+print("Minimum Average Lasso Test MSE:", lasso_min_mse.round(3))
+for possibles, r in lasso_mse.items():
+    if r == -lasso_min_mse:
+        print("The Lasso Combination of Variables:", possibles)
+
+###############################################################################
 
 # Re-testing the best model with the whole dataset
 
 
-x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bath_bed_ratio', 'bed_3']]
+x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
 
 poly = PolynomialFeatures(3)
 
@@ -599,3 +735,65 @@ mse_best_model
 # MSE = 2988.342463693857
 # R^2 = 0.854
 ##############################################################################
+
+# Final Steps
+
+
+
+from pandas import DataFrame
+
+from pandas import read_csv
+
+from sklearn.preprocessing import PolynomialFeatures
+
+import statsmodels.api as sm
+
+
+# Payton's File Path
+
+val_set = read_csv("C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_validation_set.csv")
+
+
+#Model 1
+
+val_x = val_set[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord']]
+
+poly_val = PolynomialFeatures(3)
+
+poly_val_x = poly_val.fit_transform(val_x)
+
+
+
+val_x = DataFrame(poly_val.fit_transform(val_x), columns=poly_val.get_feature_names_out(val_x.columns))
+
+val_y = val_set['price']
+
+
+
+pred = results.predict(poly_val_x)
+
+mse_best_model1 = sum((val_set.price - pred)**2)/len(val_set)
+
+mse_best_model1
+
+# Model 2
+
+val_x = val_set[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
+
+poly_val = PolynomialFeatures(3)
+
+poly_val_x = poly_val.fit_transform(val_x)
+
+
+
+val_x = DataFrame(poly_val.fit_transform(val_x), columns=poly_val.get_feature_names_out(val_x.columns))
+
+val_y = val_set['price']
+
+
+
+pred = results.predict(poly_val_x)
+
+mse_best_model1 = sum((val_set.price - pred)**2)/len(val_set)
+
+mse_best_model1
