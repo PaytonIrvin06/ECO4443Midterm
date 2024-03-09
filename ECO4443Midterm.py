@@ -631,7 +631,7 @@ y = data['price']
 mse = {}
 
 for n in range(0, len(x_combos)):
-    for j in range(4, 7): 
+    for j in range(1, 7): 
         combo_list = list(x_combos[n])
         x = data[combo_list]
         poly = PolynomialFeatures(j)
