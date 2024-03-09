@@ -771,6 +771,12 @@ import statsmodels.api as sm
 
 val_set = read_csv("C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_validation_set.csv")
 
+# Playing with simulated validation sets
+
+# seed(3456)
+# data = data.sample(len(data))
+# val_set = data[:100]
+
 # Creating the necessary variables for the validation set
 
 val_set['parcel_home_ratio'] = val_set.home_size/val_set.parcel_size
