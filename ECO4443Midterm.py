@@ -684,18 +684,9 @@ for n in range(0, len(x_combos)):
         combo_list = list(x_combos[n])
         x = x_scaled[combo_list]
 
-        ols_cv_scores = cross_validate(LinearRegression(), x, y, cv=10, scoring=('neg_mean_squared_error'))
-        lasso_cv_scores = cross_validate(Lasso(alpha=15), x, y, cv=10, scoring=('neg_mean_squared_error'))
+        lasso_cv_scores = cross_validate(Lasso(alpha=j), x, y, cv=10, scoring=('neg_mean_squared_error'))
 
-        ols_mse[str(combo_list)] = np.mean(ols_cv_scores['test_score'])
-        lasso_mse[str(combo_list)] = np.mean(lasso_cv_scores['test_score'])
-
-print("Outcomes from the Best OLS Model:")
-ols_min_mse = abs(max(ols_mse.values()))
-print("Minimum Average OLS Test MSE:", ols_min_mse.round(3))
-for possibles, r in ols_mse.items():
-    if r == -ols_min_mse:
-        print("The OLS Combination of Variables:", possibles)
+        lasso_mse[str(combo_list), j] = np.mean(lasso_cv_scores['test_score'])
 
 print("Outcomes from the Best Lasso Model:")
 lasso_min_mse = abs(max(lasso_mse.values()))
@@ -709,7 +700,7 @@ for possibles, r in lasso_mse.items():
 
 ###############################################################################
 
-# Re-testing the best model with the whole dataset
+# Re-estimating the best model with the whole dataset
 
 
 x = data[['home_size', 'pool', 'year', 'age', 'parcel_home_ratio', 'dist_lakes', 'dist_cbd', 'x_coord', 'y_coord', 'bed_3']]
@@ -756,8 +747,6 @@ mse_best_model
 
 # Final Steps
 
-
-
 from pandas import DataFrame
 
 from pandas import read_csv
@@ -769,13 +758,13 @@ import statsmodels.api as sm
 
 # Payton's File Path
 
-val_set = read_csv("C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_validation_set.csv")
+#val_set = read_csv("C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_validation_set.csv")
 
 # Playing with simulated validation sets
 
-# seed(3456)
-# data = data.sample(len(data))
-# val_set = data[:100]
+seed(3456)
+data = data.sample(len(data))
+val_set = data[:100]
 
 # Creating the necessary variables for the validation set
 
@@ -806,3 +795,6 @@ pred = results.predict(poly_val_x)
 mse_best_model = sum((val_set.price - pred)**2)/len(val_set)
 
 mse_best_model
+
+
+###############################################################################
