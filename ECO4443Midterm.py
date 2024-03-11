@@ -22,11 +22,11 @@ from sklearn.linear_model import LinearRegression, Lasso
 
 # Payton's Desktop File Path
 
-data = read_csv('C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
+#data = read_csv('C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
 
 # Payton's Surface File Path
 
-#data = read_csv('C:/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
+data = read_csv('C:/UCF/ECO4443/Python/Data/mid_term_dataset.csv')
 
 # Generating summary statistics for existing variables:
 
@@ -758,13 +758,13 @@ import statsmodels.api as sm
 
 # Payton's File Path
 
-#val_set = read_csv("C:/Users/Payton Irvin/Documents/UCF/ECO4443/Python/Data/mid_term_validation_set.csv")
+val_set = read_csv("C:/UCF/ECO4443/Python/Data/mid_term_validation_set.csv")
 
 # Playing with simulated validation sets
 
-seed(3456)
-data = data.sample(len(data))
-val_set = data[:100]
+#seed(3456)
+#data = data.sample(len(data))
+#val_set = data[:100]
 
 # Creating the necessary variables for the validation set
 
@@ -772,6 +772,7 @@ val_set['parcel_home_ratio'] = val_set.home_size/val_set.parcel_size
 
 val_set['bed_3'] = 0
 val_set.bed_3[val_set['beds'] == 3] = 1
+val_set['price'] = val_set['price']/1000
 
 # Estimating the model
 
