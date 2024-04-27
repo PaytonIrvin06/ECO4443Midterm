@@ -349,14 +349,15 @@ data2 <- data.frame(approve, debt_inc, poor_conscred, denprivmort)
 
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
-prob_seq_matrix[2,]<-prob_seq_matrix[2,]+1
-prob_seq_matrix[3,]<-prob_seq_matrix[3,]+2
+prob_seq_matrix[1,]<-prob_seq_matrix[1,]+1
+prob_seq_matrix[2,]<-prob_seq_matrix[2,]+2
+prob_seq_matrix[3,]<-prob_seq_matrix[3,]+3
 
 cv_cost <- matrix(0,nrow=3,ncol=length(prob_seq))
 
 
 for (i in 1:3){
-  model8 <- glm(approve ~  poly(debt_inc,i,raw=TRUE) + poor_conscred + denprivmort, data=variables, family=binomial)
+  model8 <- glm(approve ~  poly(debt_inc,i,raw=TRUE) + poor_conscred + denprivmort, data=data2, family=binomial)
   for (j in 1:length(prob_seq)) {
     optimal_cutoff = prob_seq[j]
     set.seed(123)
@@ -365,13 +366,13 @@ for (i in 1:3){
 }
 optimal_cutoff_cv = prob_seq_matrix[which(cv_cost==min(cv_cost))]
 optimal_cutoff_cv
-#1.62
+#2.62
 min(cv_cost)
 #.09579832
 
 #..................................................................................................
 #model9
-data2 <- data.frame(approve, debt_inc, denprivmort, poor_conscred, school)
+
 
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
@@ -385,7 +386,7 @@ for (i in 1:3){
   for (j in 1:length(prob_seq)) {
     optimal_cutoff = prob_seq[j]
     set.seed(123)
-    cv_cost[i,j] = cv.glm(data=data2, glmfit=model9, cost = costfunc, K=10)$delta[1]
+    cv_cost[i,j] = cv.glm(data=variables, glmfit=model9, cost = costfunc, K=10)$delta[1]
   }
 }
 
