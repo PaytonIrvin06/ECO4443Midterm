@@ -124,7 +124,7 @@ lp_ratio <- loan_amt/price
 
 #create full dataset with new variables
 data2 <- data.frame(approve, exp_inc, debt_inc, netw, conscred, mortcred, 
-                    poor_mortcred, poor_conscred, pubrec, probunemp, selfemp,
+                    poor_mortcred, poor_conscred, pubrec, probunemp, selfemp, loan_app,
                     loan_app_low, loan_app_medium, loan_app_high, denprivmort, race, 
                     school, married, years_job, years_work,loan_amt,income, price,
                     assets, num_lines_cr, value, pv_ratio, lp_ratio)
@@ -132,7 +132,7 @@ data2 <- data.frame(approve, exp_inc, debt_inc, netw, conscred, mortcred,
 
 #summary statistics
 variables <- data.frame(approve, exp_inc, debt_inc, netw, conscred, mortcred, 
-                        poor_mortcred, poor_conscred, pubrec, probunemp, selfemp, 
+                        poor_mortcred, poor_conscred, pubrec, probunemp, selfemp, loan_app, 
                         loan_app_low, loan_app_medium, loan_app_high, denprivmort, 
                         race, school, married, years_job, years_work,loan_amt,
                         income, price, assets, num_lines_cr, value, pv_ratio,
@@ -148,7 +148,7 @@ variables$assets <- ifelse(variables$assets == 999999.4, NA, variables$assets)
 variables$num_lines_cr <- ifelse(variables$num_lines_cr == 999999.4, NA, variables$num_lines_cr)
 class_data <- na.omit(variables)
 
-stargazer(variables, type='text')
+stargazer(class_data, type='text')
 
 #......................................................................................
 
@@ -192,7 +192,7 @@ costfunc = function(obs, pred_prob){
 
 #model estimation
 #model 2
-data2 <- data.frame(approve, debt_inc, denprivmort, poor_conscred, married)
+
 model2 <- glm(approve ~ poly(debt_inc,2,raw=TRUE) + denprivmort + poor_conscred + married, data=data2, family=binomial)
 
 prob_seq <- seq(0.01, 1, 0.01) 
@@ -214,7 +214,7 @@ min(cv_cost)
 #......................................................................................
 
 #model 3
-data2 <- data.frame(approve, debt_inc, exp_inc, school, denprivmort, poor_conscred, married)
+
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
 prob_seq_matrix[2,]<-prob_seq_matrix[2,]+1
@@ -244,7 +244,7 @@ min(cv_cost)
 #......................................................................................
 
 #model 4
-data2 <- data.frame(approve, debt_inc, income, denprivmort, poor_conscred, married)
+
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
 prob_seq_matrix[2,]<-prob_seq_matrix[2,]+1
@@ -270,7 +270,7 @@ min(cv_cost)
 #......................................................................................
 
 #model 5
-data2 <- data.frame(approve, debt_inc, denprivmort, poor_conscred, married, years_job)
+
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
 prob_seq_matrix[2,]<-prob_seq_matrix[2,]+1
@@ -297,7 +297,7 @@ min(cv_cost)
 #......................................................................................
 
 #model6
-data2 <- data.frame(approve, debt_inc, denprivmort, poor_conscred, married, years_job, years_work)
+
 model6 <- glm(approve ~ poly(debt_inc,2,raw=TRUE) + I(debt_inc*married) + I(poor_conscred*years_work) + denprivmort + poor_conscred + married, data=data2, family=binomial)
 
 prob_seq <- seq(0.01, 1, 0.01) 
@@ -318,7 +318,7 @@ min(cv_cost)
 
 #...................................................................................
 #model 7
-data2 <- data.frame(approve, debt_inc, poor_conscred, denprivmort,married)
+
 
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
@@ -345,7 +345,7 @@ min(cv_cost)
 
 #...................................................................................................
 #model8
-data2 <- data.frame(approve, debt_inc, poor_conscred, denprivmort)
+
 
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
@@ -357,16 +357,16 @@ cv_cost <- matrix(0,nrow=3,ncol=length(prob_seq))
 
 
 for (i in 1:3){
-  model8 <- glm(approve ~  poly(debt_inc,i,raw=TRUE) + poor_conscred + denprivmort, data=data2, family=binomial)
+  model8 <- glm(approve ~  poly(debt_inc,i,raw=TRUE) + poor_conscred + denprivmort, data=class_data, family=binomial)
   for (j in 1:length(prob_seq)) {
     optimal_cutoff = prob_seq[j]
     set.seed(123)
-    cv_cost[i,j] = cv.glm(data=data2, glmfit=model8, cost = costfunc, K=10)$delta[1]
+    cv_cost[i,j] = cv.glm(data=class_data, glmfit=model8, cost = costfunc, K=10)$delta[1]
   }
 }
 optimal_cutoff_cv = prob_seq_matrix[which(cv_cost==min(cv_cost))]
 optimal_cutoff_cv
-#2.62
+#2.62  -> threshold of 0.62, at poly 2
 min(cv_cost)
 #.09579832
 
@@ -376,22 +376,24 @@ min(cv_cost)
 
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
-prob_seq_matrix[2,]<-prob_seq_matrix[2,]+1
-prob_seq_matrix[3,]<-prob_seq_matrix[3,]+2
+prob_seq_matrix[1,]<-prob_seq_matrix[1,]+1
+prob_seq_matrix[2,]<-prob_seq_matrix[2,]+2
+prob_seq_matrix[3,]<-prob_seq_matrix[3,]+3
 
 cv_cost <- matrix(0,nrow=3,ncol=length(prob_seq))
 
 for (i in 1:3){
-  model9 <- glm(approve ~  poly(debt_inc,i,raw=TRUE) + poly(school,i,raw=TRUE)+ denprivmort + poor_conscred, data=variables, family=binomial)
+  model9 <- glm(approve ~  poly(debt_inc,i,raw=TRUE) + poly(school,i,raw=TRUE)+ denprivmort + poor_conscred, data=class_data, family=binomial)
   for (j in 1:length(prob_seq)) {
     optimal_cutoff = prob_seq[j]
     set.seed(123)
-    cv_cost[i,j] = cv.glm(data=variables, glmfit=model9, cost = costfunc, K=10)$delta[1]
+    cv_cost[i,j] = cv.glm(data=class_data, glmfit=model9, cost = costfunc, K=10)$delta[1]
   }
 }
 
 optimal_cutoff_cv = prob_seq_matrix[which(cv_cost==min(cv_cost))]
 optimal_cutoff_cv
+#1.61
 min(cv_cost)
 #.09705882
 
@@ -400,7 +402,7 @@ min(cv_cost)
 #.................................................................................
 # Attempting model 8 as a GAM with smoothing splines
 
-logitgam1 <- gam(approve ~ s(debt_inc) + poor_conscred + denprivmort, data=variables, family=binomial())
+logitgam1 <- gam(approve ~ s(debt_inc) + poor_conscred + denprivmort, data=class_data, family=binomial())
 
 
 prob_seq <- seq(0.01, 1, 0.01) 
@@ -410,7 +412,7 @@ cv_cost <- rep(0, length(prob_seq))
 for(i in 1:length(prob_seq)){ 
   optimal_cutoff = prob_seq[i]
   set.seed(123)
-  cv_cost[i] = cv.glm(data=variables, glmfit=logitgam1, cost = costfunc, K=10)$delta[1]
+  cv_cost[i] = cv.glm(data=class_data, glmfit=logitgam1, cost = costfunc, K=10)$delta[1]
 }
 
 optimal_cutoff_cv = prob_seq[which(cv_cost==min(cv_cost))]
@@ -443,7 +445,7 @@ min(cv_cost)
 #.................................................................................
 # GAM w best dummies, pulling out selective continuous vars
 
-data2 <- data.frame(approve, debt_inc, income, loan_amt, loan_app, probunemp, years_job, years_work, denprivmort, poor_conscred, price, assets)
+
 
 logitgam <- gam(approve ~ s(debt_inc) + s(loan_app) + denprivmort + poor_conscred, data=variables, family=binomial)
 
@@ -454,26 +456,26 @@ cv_cost <- rep(0, length(prob_seq))
 for(i in 1:length(prob_seq)){ 
   optimal_cutoff = prob_seq[i]
   set.seed(123)
-  cv_cost[i] = cv.glm(data=data2, glmfit=logitgam, cost = costfunc, K=10)$delta[1]
+  cv_cost[i] = cv.glm(data=variables, glmfit=logitgam, cost = costfunc, K=10)$delta[1]
 }
 
 optimal_cutoff_cv = prob_seq[which(cv_cost==min(cv_cost))]
 optimal_cutoff_cv
-#optimal cutoff = 0.52
+#optimal cutoff = 0.48
 min(cv_cost)
-#min cv_cost = 0.09537815
-plot.Gam(logitgam, se = TRUE, col = 'green')
+#min cv_cost = 0.09495798
+#plot.Gam(logitgam, se = TRUE, col = 'green') these plots were working and aren't working now
 
-#price, assets, num_lines_cr, value, pv_ratio, lp_ratio
+
 #.................................................................................
 #Re-estimate best model with entire dataset 
 GAMlogit <- gam(approve ~ s(debt_inc) + s(loan_app) + denprivmort + poor_conscred, data=variables, family=binomial)
 
 summary(GAMlogit)
-plot.Gam(GAMlogit, se = TRUE, col = 'green')
+#plot.Gam(GAMlogit, se = TRUE, col = 'green')
 
 pred_prob1 <- predict.glm(GAMlogit, type=c("response"))
-class_prediction1 <- ifelse(pred_prob1 > 0.52, 1,0)
+class_prediction1 <- ifelse(pred_prob1 > 0.48, 1,0)
 class_prediction1 <- factor(class_prediction1)
 approve <- factor(approve)
 
@@ -495,7 +497,7 @@ tnr
 fnr
 accuracy
 error_rate
-#0.09663866
+#0.09369748
 
 confusionMatrix(class_prediction1, approve, positive="1")
 
@@ -506,7 +508,7 @@ plot(perf1, colorize=TRUE)
 
 #AUC
 unlist(slot(performance(pred1, "auc"), "y.values"))
-# 0.7987196
+# 0.8044542
 
 
 
