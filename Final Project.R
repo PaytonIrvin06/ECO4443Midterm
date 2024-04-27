@@ -8,7 +8,7 @@
 # cost function:            line 180
 # basic model estimation:   line 193
 # GAM estimation:           line 398
-# Re-estimation w/ stats:   line 468
+# Re-estimation w/ stats:   line 471
 #====================================
 install.packages('caret')
 install.packages('mgcv')
@@ -319,7 +319,6 @@ min(cv_cost)
 #...................................................................................
 #model 7
 
-
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
 prob_seq_matrix[2,]<-prob_seq_matrix[2,]+1
@@ -346,7 +345,6 @@ min(cv_cost)
 #...................................................................................................
 #model8
 
-
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
 prob_seq_matrix[1,]<-prob_seq_matrix[1,]+1
@@ -372,7 +370,6 @@ min(cv_cost)
 
 #..................................................................................................
 #model9
-
 
 prob_seq <- seq(0.01, 1, 0.01) 
 prob_seq_matrix <- matrix(rep(prob_seq, 3), nrow=3, byrow=TRUE)
